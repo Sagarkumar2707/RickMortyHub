@@ -1,0 +1,136 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from '@constants/colors';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.bgPrimary,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.bgPrimary,
+  },
+  topBar: {
+    paddingTop: 52,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    backgroundColor: Colors.bgPrimary,
+  },
+  backButton: {
+    paddingVertical: 8,
+    paddingRight: 16,
+  },
+  backText: {
+    color: Colors.neonCyanMuted,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  iconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: Colors.borderAccent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 8,
+    borderWidth: 3,
+    alignSelf: 'center',
+    borderColor: Colors.neonCyanMuted,
+  },
+  icon: {
+    fontSize: 48,
+  },
+  name: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 16,
+  },
+  infoGrid: {
+    width: '100%',
+    backgroundColor: Colors.bgAlt,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 28,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderAccent,
+  },
+  infoLabel: {
+    color: Colors.textSecondary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  infoValue: {
+    color: Colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '500',
+    maxWidth: '60%',
+    textAlign: 'right',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+  },
+  noResidents: {
+    color: Colors.textSecondary,
+    fontSize: 15,
+    textAlign: 'center',
+    marginTop: 16,
+  },
+  residentsLoader: {
+    marginTop: 32,
+  },
+  residentsGrid: {
+    paddingBottom: 16,
+  },
+  residentItem: {
+    width: '33.33%',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    paddingVertical: 8,
+  },
+  avatarContainer: {
+    width: 90,
+    height: 90,
+    shadowColor: Colors.neonCyan,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 10,
+    borderRadius: 45,
+    backgroundColor: Colors.blackShort,
+    marginBottom: 8,
+  },
+  residentAvatar: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 2,
+    borderColor: Colors.neonCyan,
+  },
+  residentName: {
+    color: Colors.textSecondary,
+    fontSize: 11,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+});

@@ -1,97 +1,384 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<div align="center">
 
-# Getting Started
+# 🛸 RickMortyHub
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+A **React Native** application for exploring the Rick and Morty universe — browse characters, episodes, and locations, and bookmark your favourites with offline persistence.
 
-## Step 1: Start Metro
+[![React Native](https://img.shields.io/badge/React%20Native-0.84.1-61DAFB?logo=react)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-brightgreen)](https://reactnative.dev/)
+[![Tests](https://img.shields.io/badge/Tests-11%20Passing-brightgreen?logo=jest)](https://jestjs.io/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+</div>
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
+## Demo🔥
+
+![](PreView/appDemo.gif)
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Architecture Overview](#-architecture-overview)
+- [Project Structure](#-project-structure)
+- [Libraries Used](#-libraries-used)
+- [Prerequisites](#-prerequisites)
+- [Project Setup](#-project-setup)
+- [Running Tests](#-running-tests)
+- [Building a Release APK](#-building-a-release-apk)
+- [Known Issues & Limitations](#-known-issues--limitations)
+
+---
+
+## ✨ Features
+
+| Feature                | Description                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| 🧬 **Characters**      | Browse all Rick & Morty characters with real-time search and filters (Status, Gender) |
+| 📺 **Episodes**        | Explore all episodes across every season                                              |
+| 🗺️ **Locations**       | Discover all locations from the show                                                  |
+| ❤️ **Favourites**      | Save characters as favourites with full offline persistence via SQLite                |
+| 📡 **Offline Banner**  | Real-time network status indicator when internet is unavailable                       |
+| 🔍 **Search & Filter** | Debounced search and bottom-sheet filter modal for Characters                         |
+| 🎨 **Dark Neon UI**    | Custom dark-mode design with neon glow effects and smooth animations                  |
+
+---
+
+## 🏗️ Architecture Overview
+
+The app follows a **feature-based, unidirectional data flow** architecture:
+
+```
+┌─────────────────────────────────────────────────────┐
+│                      UI Layer                       │
+│         (Screens → Components → Hooks)              │
+└────────────────────┬────────────────────────────────┘
+                     │
+       ┌─────────────▼──────────────┐
+       │      State Management      │
+       │  Redux Toolkit (Favourites │
+       │  + Filters) + React Query  │
+       │  (API data / pagination)   │
+       └─────────────┬──────────────┘
+                     │
+       ┌─────────────▼──────────────┐
+       │       Data Layer           │
+       │  Axios (REST API) +        │
+       │  OP-SQLite (Favourites DB) │
+       └────────────────────────────┘
+```
+
+- **API**: [Rick and Morty API](https://rickandmortyapi.com/) — public, free, no auth required.
+- **Server State**: `@tanstack/react-query` handles pagination, caching, and background refetching.
+- **Client State**: `@reduxjs/toolkit` manages UI state (favourites list, active filters).
+- **Persistence**: `@op-engineering/op-sqlite` stores favourite characters in a local SQLite database.
+- **Navigation**: `@react-navigation` with a custom Bottom Tab Navigator.
+
+---
+
+## 📁 Project Structure
+
+```
+RickMortyHub/
+├── __tests__/                      # Root-level integration test
+│   └── App.test.tsx
+├── src/
+│   ├── api/                        # Axios instance & API functions
+│   │   └── axiosInstance.ts
+│   ├── components/                 # Shared/global components
+│   │   └── OfflineBanner.tsx
+│   ├── constants/                  # App-wide constants (DB name, API base URL)
+│   ├── database/                   # SQLite database layer
+│   │   └── db.ts                   # CRUD operations for favourites
+│   ├── features/                   # Feature modules (self-contained)
+│   │   ├── characters/             # Characters list, detail, search, filter
+│   │   ├── episodes/               # Episodes list & cards
+│   │   ├── favourites/             # Favourites screen & cards
+│   │   └── locations/              # Locations list & cards
+│   ├── hooks/                      # Custom reusable hooks
+│   │   ├── useDebounce.ts
+│   │   └── useNetworkStatus.ts
+│   ├── navigation/                 # React Navigation setup
+│   │   ├── BottomTabNavigator.tsx
+│   │   ├── RootNavigator.tsx
+│   │   └── TabIcons.tsx
+│   ├── store/                      # Redux Toolkit store
+│   │   ├── index.ts
+│   │   └── slices/
+│   │       ├── favouritesSlice.ts  # Async thunks for SQLite favourites
+│   │       └── filtersSlice.ts     # Filter state for character search
+│   ├── types/                      # TypeScript type definitions
+│   └── __tests__/                  # Unit tests
+│       ├── apiService.test.ts
+│       ├── favouritesSlice.test.ts
+│       └── useDebounce.test.ts
+├── App.tsx                         # Root component with all providers
+├── index.js                        # App entry point
+├── jest.config.js                  # Jest configuration
+├── jest.setup.js                   # Jest mock setup for native modules
+├── babel.config.js                 # Babel + module alias config
+├── metro.config.js                 # Metro bundler config
+└── tsconfig.json                   # TypeScript config with path aliases
+```
+
+---
+
+## 📦 Libraries Used
+
+### Core
+
+| Library        | Version  | Purpose                         |
+| -------------- | -------- | ------------------------------- |
+| `react-native` | `0.84.1` | Cross-platform mobile framework |
+| `react`        | `19.2.3` | UI library                      |
+| `typescript`   | `^5.8.3` | Static typing                   |
+
+### Navigation
+
+| Library                          | Version    | Purpose                             |
+| -------------------------------- | ---------- | ----------------------------------- |
+| `@react-navigation/native`       | `^7.2.2`   | Navigation core                     |
+| `@react-navigation/bottom-tabs`  | `^7.15.9`  | Bottom tab bar                      |
+| `@react-navigation/native-stack` | `^7.14.11` | Stack navigation for detail screens |
+| `react-native-screens`           | `^4.24.0`  | Native screen containers            |
+| `react-native-safe-area-context` | `^5.7.0`   | Safe area insets                    |
+
+### State Management
+
+| Library                 | Version   | Purpose                            |
+| ----------------------- | --------- | ---------------------------------- |
+| `@reduxjs/toolkit`      | `^2.11.2` | Redux store, slices & async thunks |
+| `react-redux`           | `^9.2.0`  | React bindings for Redux           |
+| `@tanstack/react-query` | `^5.99.2` | Server state, caching & pagination |
+
+### Networking
+
+| Library                           | Version   | Purpose                                        |
+| --------------------------------- | --------- | ---------------------------------------------- |
+| `axios`                           | `^1.15.1` | HTTP client with request/response interceptors |
+| `@react-native-community/netinfo` | `^12.0.1` | Network connectivity monitoring                |
+
+### Database
+
+| Library                     | Version    | Purpose                                                        |
+| --------------------------- | ---------- | -------------------------------------------------------------- |
+| `@op-engineering/op-sqlite` | `^15.2.11` | High-performance SQLite (JSI-based) for favourites persistence |
+
+### UI & Animation
+
+| Library                        | Version   | Purpose                                          |
+| ------------------------------ | --------- | ------------------------------------------------ |
+| `react-native-reanimated`      | `^4.3.0`  | Smooth animations (character cards, transitions) |
+| `react-native-gesture-handler` | `^2.31.1` | Gesture support for swipe interactions           |
+| `react-native-fast-image`      | `^8.6.3`  | Optimised image loading with caching             |
+| `react-native-worklets`        | `^0.8.1`  | JS worklets runtime for Reanimated v4            |
+
+### Testing
+
+| Library                         | Version    | Purpose                       |
+| ------------------------------- | ---------- | ----------------------------- |
+| `jest`                          | `^29.6.3`  | Test runner                   |
+| `react-test-renderer`           | `19.2.3`   | Component rendering for tests |
+| `@testing-library/react-native` | `^13.3.3`  | Testing utilities             |
+| `@types/jest`                   | `^29.5.13` | TypeScript types for Jest     |
+
+---
+
+## ✅ Prerequisites
+
+Ensure the following are installed and configured on your machine:
+
+| Tool                 | Version                           | Check                        |
+| -------------------- | --------------------------------- | ---------------------------- |
+| **Node.js**          | ≥ 22.11.0                         | `node --version`             |
+| **npm**              | ≥ 10                              | `npm --version`              |
+| **Java (JDK)**       | 17                                | `java --version`             |
+| **Android Studio**   | Latest                            | Android SDK, Emulator        |
+| **Android SDK**      | API 35+                           | via Android Studio           |
+| **Xcode**            | 15+ _(macOS, iOS only)_           | Mac App Store                |
+| **CocoaPods**        | Latest _(macOS, iOS only)_        | `sudo gem install cocoapods` |
+| **React Native CLI** | via `@react-native-community/cli` | Bundled as dev dependency    |
+
+> **Android SDK Environment Variables** — Add these to your `~/.zshrc` or `~/.bashrc`:
+>
+> ```bash
+> export ANDROID_HOME=$HOME/Library/Android/sdk
+> export PATH=$PATH:$ANDROID_HOME/emulator
+> export PATH=$PATH:$ANDROID_HOME/platform-tools
+> ```
+
+---
+
+## 🚀 Project Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Sagarkumar2707/RickMortyHub.git
+cd RickMortyHub
+```
+
+### 2. Install JavaScript Dependencies
+
+```bash
+npm install
+```
+
+### 3. Android — Start Metro Bundler
+
+Open a terminal and start the Metro development server:
+
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
+### 4. Android — Run on Emulator or Physical Device
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Open a **new terminal** in the project root:
 
-### Android
-
-```sh
-# Using npm
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+> Make sure an Android emulator is running, or a physical device is connected via USB with **USB Debugging** enabled.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+### 5. iOS — Install CocoaPods (macOS only)
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```bash
+cd ios && bundle install && bundle exec pod install && cd ..
 ```
 
-Then, and every time you update your native dependencies, run:
+Then run:
 
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+---
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🔧 Path Aliases
 
-## Step 3: Modify your app
+The project uses TypeScript path aliases for clean imports. These are configured in both `tsconfig.json` and `babel.config.js`:
 
-Now that you have successfully run the app, let's make changes!
+| Alias           | Resolves To        |
+| --------------- | ------------------ |
+| `@features/*`   | `src/features/*`   |
+| `@hooks/*`      | `src/hooks/*`      |
+| `@store/*`      | `src/store/*`      |
+| `@api/*`        | `src/api/*`        |
+| `@components/*` | `src/components/*` |
+| `@database/*`   | `src/database/*`   |
+| `@navigation/*` | `src/navigation/*` |
+| `@constants/*`  | `src/constants/*`  |
+| `@types/*`      | `src/types/*`      |
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## 🧪 Running Tests
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```bash
+npm test
+```
 
-## Congratulations! :tada:
+**Expected Output:**
 
-You've successfully run and modified your React Native App. :partying_face:
+```
+PASS  src/__tests__/apiService.test.ts
+PASS  src/__tests__/favouritesSlice.test.ts
+PASS  src/__tests__/useDebounce.test.ts
+PASS  __tests__/App.test.tsx
 
-### Now what?
+Test Suites: 4 passed, 4 total
+Tests:       11 passed, 11 total
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+### Test Coverage Summary
 
-# Troubleshooting
+| Test File                 | What It Tests                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `apiService.test.ts`      | `fetchCharacterById` — success & error response handling via Axios mock                                             |
+| `favouritesSlice.test.ts` | Redux reducer — initial state, `addFavouriteThunk`, `removeFavouriteThunk`, `clearFavourites`, duplicate prevention |
+| `useDebounce.test.ts`     | `useDebounce` hook — debounce timing, value updates, cleanup on unmount                                             |
+| `App.test.tsx`            | Root `App` component — renders without crashing with all providers                                                  |
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### Native Module Mocking
 
-# Learn More
+Since Jest runs in a Node.js environment, native modules are mocked in `jest.setup.js`:
 
-To learn more about React Native, take a look at the following resources:
+- **`@op-engineering/op-sqlite`** → Mocked with in-memory JS stubs
+- **`react-native-reanimated`** & **`react-native-worklets`** → Test utilities applied
+- **`react-native-safe-area-context`** → Official jest mock from the package
+- **`@react-native-community/netinfo`** → Mocked to return "connected"
+- **`react-native-fast-image`** → Rendered as a plain `View`
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+---
+
+## 📦 Building a Release APK
+
+```bash
+cd android
+./gradlew assembleRelease
+```
+
+The APK will be generated at:
+
+```
+android/app/build/outputs/apk/release/app-release.apk
+```
+
+---
+
+## ⚠️ Known Issues & Limitations
+
+### 1. Jest Worker Teardown Warning
+
+> After running `npm test`, you may see:
+>
+> ```
+> A worker process has failed to exit gracefully and has been force exited.
+> ```
+>
+> This is a known non-breaking warning caused by open async handles (Axios interceptors, NetInfo listeners) not being fully cleaned up after tests. All **11 tests pass**; this is a teardown cosmetic warning only. Use `--detectOpenHandles` to inspect.
+
+
+### 3. No Search on Episodes & Locations
+
+> The Characters screen has a full search + filter bottom sheet. The Episodes and Locations screens only support basic name search (Locations) or no search at all (Episodes). Advanced filtering by season code, type, or dimension has not been implemented for these tabs.
+
+### 4. No Authentication / User Accounts
+
+> The application uses the [Rick and Morty public API](https://rickandmortyapi.com/), which requires no authentication. There is no user login system — favourites are stored locally on the device only and are not synced across devices.
+
+### 5. Favourites are Device-Local
+
+> All favourite characters are persisted in a local SQLite database on the device. Uninstalling the app will delete all saved favourites.
+
+### 6. No Dark/Light Mode Toggle
+
+> The app ships exclusively in a dark neon theme. A system-level theme toggle (light mode) has not been implemented.
+
+---
+
+## 🌐 API Reference
+
+This app consumes the free, open-source **Rick and Morty REST API**:
+
+| Endpoint             | Description                                                           |
+| -------------------- | --------------------------------------------------------------------- |
+| `GET /character`     | Paginated list of characters (supports `?name`, `?status`, `?gender`) |
+| `GET /character/:id` | Single character by ID                                                |
+| `GET /episode`       | Paginated list of episodes                                            |
+| `GET /location`      | Paginated list of locations                                           |
+
+- **Base URL**: `https://rickandmortyapi.com/api`
+- **Docs**: https://rickandmortyapi.com/documentation
+
+---
+
+<div align="center">
+
+Made with ❤️ using React Native
+
+</div>
