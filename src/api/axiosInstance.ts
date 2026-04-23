@@ -61,12 +61,16 @@ const emptyPage = {
   results: [],
 };
 
-const handle404 = (error: any) => {
-  if (
-    error.message === 'Resource not found.' ||
-    error.response?.status === 404
-  ) {
-    return emptyPage;
+const handle404 = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    if (error.response?.status === 404) {
+      return emptyPage;
+    }
+  } else if (error instanceof Error) {
+    // Optional fallback if you REALLY expect this message
+    if (error.message === 'Resource not found.') {
+      return emptyPage;
+    }
   }
   throw error;
 };
@@ -89,8 +93,8 @@ export const fetchCharacters = async (
       { params },
     );
     return response.data;
-  } catch (error: any) {
-    return handle404(error);
+  } catch (error: unknown) {
+    return handle404(error) as ApiResponse<Character>;
   }
 };
 
@@ -130,8 +134,8 @@ export const fetchEpisodes = async (
       params,
     });
     return response.data;
-  } catch (error: any) {
-    return handle404(error);
+  } catch (error: unknown) {
+    return handle404(error) as ApiResponse<Episode>;
   }
 };
 
@@ -158,8 +162,8 @@ export const fetchLocations = async (
       { params },
     );
     return response.data;
-  } catch (error: any) {
-    return handle404(error);
+  } catch (error: unknown) {
+    return handle404(error) as ApiResponse<Location>;
   }
 };
 

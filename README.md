@@ -16,7 +16,7 @@ A **React Native** application for exploring the Rick and Morty universe — bro
 
 ## Demo🔥
 
-![](PreView/appDemo.gif)
+![](preview/appDemo.gif)
 
 ## 📋 Table of Contents
 
@@ -341,7 +341,6 @@ android/app/build/outputs/apk/release/app-release.apk
 > ```
 >
 > This is a known non-breaking warning caused by open async handles (Axios interceptors, NetInfo listeners) not being fully cleaned up after tests. All **11 tests pass**; this is a teardown cosmetic warning only. Use `--detectOpenHandles` to inspect.
-
 
 ### 3. No Search on Episodes & Locations
 
